@@ -19,10 +19,10 @@ def pregunta_01():
     ¿Cuál es la cantidad de filas en la tabla `tbl0.tsv`?
 
     Rta/
-    40
+    40 
 
     """
-    return
+    return len(tbl0)
 
 
 def pregunta_02():
@@ -33,7 +33,7 @@ def pregunta_02():
     4
 
     """
-    return
+    return len(tbl0.columns)
 
 
 def pregunta_03():
@@ -50,7 +50,7 @@ def pregunta_03():
     Name: _c1, dtype: int64
 
     """
-    return
+    return tbl0.groupby("_c1")["_c1"].count()
 
 
 def pregunta_04():
@@ -65,7 +65,7 @@ def pregunta_04():
     E    4.785714
     Name: _c2, dtype: float64
     """
-    return
+    return tbl0.groupby("_c1")["_c2"].mean()
 
 
 def pregunta_05():
@@ -82,7 +82,7 @@ def pregunta_05():
     E    9
     Name: _c2, dtype: int64
     """
-    return
+    return tbl0.groupby("_c1")["_c2"].max()
 
 
 def pregunta_06():
@@ -94,7 +94,7 @@ def pregunta_06():
     ['A', 'B', 'C', 'D', 'E', 'F', 'G']
 
     """
-    return
+    return [x.upper() for x in sorted(tbl1["_c4"].unique())]
 
 
 def pregunta_07():
@@ -110,7 +110,7 @@ def pregunta_07():
     E    67
     Name: _c2, dtype: int64
     """
-    return
+    return tbl0.groupby("_c1")["_c2"].sum()
 
 
 def pregunta_08():
@@ -128,7 +128,10 @@ def pregunta_08():
     39   39   E    5  1998-01-26    44
 
     """
-    return
+    tbl0_08=tbl0.copy()
+    tbl0_08["suma"]=tbl0_08["_c0"]+tbl0_08["_c2"]
+
+    return tbl0_08
 
 
 def pregunta_09():
@@ -146,7 +149,10 @@ def pregunta_09():
     39   39   E    5  1998-01-26  1998
 
     """
-    return
+    tbl0_09=tbl0.copy()
+    tbl0_09["year"]=tbl0_09["_c3"].str.split("-").str.get(0)
+
+    return tbl0_09
 
 
 def pregunta_10():
@@ -163,7 +169,48 @@ def pregunta_10():
     3   D                  1:2:3:5:5:7
     4   E  1:1:2:3:3:4:5:5:5:6:7:8:8:9
     """
-    return
+    newtbl0=tbl0[["_c1"]].drop_duplicates(subset="_c1",ignore_index=True)
+    newtbl0=newtbl0.assign(_c2="")
+    newtbl0=newtbl0.sort_values(by="_c1",ignore_index=True)
+    tblNew=pd.DataFrame()
+    lst=[]
+    for i in range(0, len(newtbl0)):
+        tblNew=tbl0[tbl0["_c1"]==newtbl0.iloc[i]["_c1"]]
+        lst=sorted(tblNew["_c2"].tolist())
+        c2=":".join(map(str, lst))
+        newtbl0.loc[i,"_c2"]=c2
+
+    newtbl0.set_index("_c1", inplace=True)
+
+    return newtbl0
+
+
+print("Pregunta 10")
+print(pregunta_10().equals(pd.DataFrame(
+     {
+         "_c2": [
+             "1:1:2:3:6:7:8:9",
+             "1:3:4:5:6:8:9",
+             "0:5:6:7:9",
+             "1:2:3:5:5:7",
+             "1:1:2:3:3:4:5:5:5:6:7:8:8:9",
+         ]
+     },
+     index=pd.Series(["A", "B", "C", "D", "E"], name="_c1"),
+ )))
+print( pd.DataFrame(
+     {
+         "_c2": [
+             "1:1:2:3:6:7:8:9",
+             "1:3:4:5:6:8:9",
+             "0:5:6:7:9",
+             "1:2:3:5:5:7",
+             "1:1:2:3:3:4:5:5:5:6:7:8:8:9",
+         ]
+     },
+     index=pd.Series(["A", "B", "C", "D", "E"], name="_c1"),
+ ))
+
 
 
 def pregunta_11():
@@ -182,7 +229,16 @@ def pregunta_11():
     38   38      d,e
     39   39    a,d,f
     """
-    return
+    newtbl0=pd.DataFrame(tbl0["_c0"])
+
+    lst=[]
+    for i in range(0, len(newtbl0)):
+        tblNew=tbl1[tbl1["_c0"]==newtbl0.iloc[i]["_c0"]]
+        lst=sorted(tblNew["_c4"].tolist())
+        c2=",".join(map(str, lst))
+        newtbl0.loc[i,"_c4"]=c2
+
+    return newtbl0
 
 
 def pregunta_12():
@@ -200,7 +256,22 @@ def pregunta_12():
     38   38                    eee:0,fff:9,iii:2
     39   39                    ggg:3,hhh:8,jjj:5
     """
-    return
+    newtbl2=tbl2[["_c0"]].drop_duplicates(subset="_c0",ignore_index=True)
+    newtbl2=newtbl2.assign(_c5="")
+
+    temtbl2=pd.DataFrame()
+    for i in range(0,len(newtbl2)):
+          mydic={}
+          list5a=[]
+          list5b=[]
+          temtbl2=tbl2[tbl2["_c0"]==newtbl2.iloc[i]["_c0"]]
+          list5a=temtbl2["_c5a"].tolist()
+          list5b=temtbl2["_c5b"].tolist()
+          mydic={list5a:list5b for (list5a, list5b) in zip(list5a,list5b)}
+          mydic=dict(sorted(mydic.items()))
+          newtbl2.loc[i,"_c5"]=str(mydic).replace("{","").replace("}","").replace("'", "").replace(" ", "")
+
+    return newtbl2
 
 
 def pregunta_13():
@@ -217,4 +288,6 @@ def pregunta_13():
     E    275
     Name: _c5b, dtype: int64
     """
-    return
+    tbl1_2=pd.merge(tbl0, tbl2, on="_c0")
+
+    return tbl1_2.groupby("_c1")["_c5b"].sum()
